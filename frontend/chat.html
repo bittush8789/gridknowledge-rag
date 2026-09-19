@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GridKnowledge RAG - Enterprise Conversational Assistant with Grounded Citations">
+  <title>Chat — GridKnowledge Enterprise</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="brand" id="brand-link">
+      <div class="brand-icon">⚡</div>
+      <span class="brand-title">GridKnowledge</span>
+      <span class="brand-tag">ENTERPRISE</span>
+    </a>
+
+    <nav class="nav" id="main-nav">
+      <a href="/chat" class="nav-link active" id="nav-chat">Chat</a>
+      <a href="javascript:void(0)" class="nav-link" id="nav-history-btn">History</a>
+      <a href="javascript:void(0)" class="nav-link" id="nav-sources-btn">Sources</a>
+      <a href="javascript:void(0)" class="nav-link" id="nav-settings-btn">Settings</a>
+      <a href="javascript:void(0)" class="nav-link" id="nav-admin-btn" style="display: none;">Admin</a>
+
+      <div class="user-badge" id="user-badge-container">
+        <span id="user-display-name">Loading...</span>
+        <span class="role-pill" id="user-role-pill">Viewer</span>
+        <button class="btn-ghost" id="btn-switch-user" title="Switch User Role">Switch</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Chat Workspace Layout -->
+  <div class="chat-layout">
+    <!-- Sidebar: Conversation History -->
+    <aside class="chat-sidebar" id="chat-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Conversations</span>
+        <button class="btn-new-chat" id="btn-new-chat">+ New Chat</button>
+      </div>
+      <div class="conversation-list" id="conversation-list">
+        <!-- Injected via JavaScript -->
+      </div>
+    </aside>
+
+    <!-- Main Chat Window -->
+    <main class="chat-main">
+      <div class="chat-messages" id="chat-messages">
+        <!-- Initial Welcome Placeholder -->
+        <div id="welcome-message-card" style="text-align: center; margin: auto; max-width: 520px; padding: 40px 20px;">
+          <div style="font-size: 42px; margin-bottom: 12px;">⚡</div>
+          <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Grid Knowledge Assistant</h2>
+          <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+            Ask questions about approved electricity-grid operations, equipment manuals, maintenance procedures, or safety SOPs. All answers are strictly grounded with verifiable citations.
+          </p>
+        </div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <div class="chat-input-container">
+        <form id="chat-form" class="chat-form">
+          <input 
+            type="text" 
+            id="chat-input" 
+            class="chat-input" 
+            placeholder="Ask a question or follow-up regarding grid documentation..." 
+            autocomplete="off"
+            required
+          >
+          <button type="submit" id="chat-submit-btn" class="btn-send">Send</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Source Document Inspector Modal -->
+  <div class="modal-overlay" id="source-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title" id="source-modal-title">Verified Source Document</div>
+        <button class="modal-close" id="btn-close-source-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="source-modal-body">
+        <div class="source-meta-grid" id="source-meta-grid">
+          <!-- Populated by JS -->
+        </div>
+        <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">
+          Approved Document Excerpt
+        </div>
+        <div class="source-excerpt-box" id="source-excerpt-box">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approved Sources Catalog Modal -->
+  <div class="modal-overlay" id="sources-catalog-modal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">Approved Grid Documentation Inventory</div>
+        <button class="modal-close" id="btn-close-sources-catalog">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px;">The following internal manuals, procedures, and standards comprise the authorized knowledge base:</p>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Category</th>
+              <th>Equipment</th>
+              <th>Version</th>
+              <th>Pages</th>
+              <th>Access Level</th>
+            </tr>
+          </thead>
+          <tbody id="sources-catalog-tbody">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Management Modal -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">GridKnowledge Administration</div>
+        <button class="modal-close" id="btn-close-admin-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="admin-tabs">
+          <button class="admin-tab active" data-tab="admin-tab-docs">Documents</button>
+          <button class="admin-tab" data-tab="admin-tab-eval">Evaluation</button>
+          <button class="admin-tab" data-tab="admin-tab-users">Users & RBAC</button>
+          <button class="admin-tab" data-tab="admin-tab-audit">Audit Logs</button>
+        </div>
+
+        <!-- Tab 1: Documents & Ingestion -->
+        <div class="admin-tab-content" id="admin-tab-docs">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="font-size: 13.5px; color: var(--text-secondary);">
+              Manage internal documents indexed in <code>data/documents/</code>. Normal users cannot upload documents.
+            </p>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-primary" id="btn-admin-trigger-ingest">Trigger Ingestion</button>
+              <button class="btn-secondary" id="btn-admin-reindex">Re-Index All</button>
+            </div>
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Version</th>
+                <th>Access Level</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="admin-docs-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tab 2: RAG Evaluation -->
+        <div class="admin-tab-content" id="admin-tab-eval" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <p style="font-size: 13.5px; color: var(--text-secondary);">
+              Evaluate retrieval precision, recall, faithfulness, relevance, citation accuracy, and guardrails safety.
+            </p>
+            <button class="btn-primary" id="btn-admin-run-eval">Run Benchmark Now</button>
+          </div>
+          
+          <div class="metric-card-grid" id="eval-metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Overall Score</div>
+              <div class="metric-value" id="metric-overall-score">--</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Context Precision</div>
+              <div class="metric-value" id="metric-precision">--</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Faithfulness</div>
+              <div class="metric-value" id="metric-faithfulness">--</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Safety & Guardrails</div>
+              <div class="metric-value" id="metric-safety">--</div>
+            </div>
+          </div>
+
+          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">
+            Recent Evaluation Runs
+          </div>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Score</th>
+                <th>Samples</th>
+                <th>Triggered By</th>
+              </tr>
+            </thead>
+            <tbody id="admin-eval-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tab 3: Users & Roles -->
+        <div class="admin-tab-content" id="admin-tab-users" style="display: none;">
+          <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;">
+            Configured personnel accounts and Role-Based Access Control (RBAC) assignments:
+          </p>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Assigned Role</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="admin-users-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tab 4: Audit Logs -->
+        <div class="admin-tab-content" id="admin-tab-audit" style="display: none;">
+          <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 16px;">
+            Security audit trail, query history, and guardrail interception records:
+          </p>
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="admin-audit-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">System Settings & Health</div>
+        <button class="modal-close" id="btn-close-settings-modal">&times;</button>
+      </div>
+      <div class="modal-body" id="settings-modal-body">
+        <div class="source-meta-grid" id="system-health-grid">
+          <div class="source-meta-item">Service: <strong>GridKnowledge RAG</strong></div>
+          <div class="source-meta-item">Active Model: <strong id="health-model-status">GPT-OSS 120B (Groq)</strong></div>
+          <div class="source-meta-item">Database: <strong id="health-db-status">Connected</strong></div>
+          <div class="source-meta-item">Search Engine: <strong id="health-retrieval-status">Hybrid (Pinecone + BM25)</strong></div>
+          <div class="source-meta-item">Observability: <strong id="health-obs-status">LangSmith</strong></div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-top: 12px;">
+          Approved documentation is read-only and maintained exclusively by operations engineering. User document upload is disabled by enterprise policy.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Switch User Modal -->
+  <div class="modal-overlay" id="user-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Select Active User Role (RBAC)</div>
+        <button class="modal-close" id="btn-close-user-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px;">Select an approved grid personnel account to test role-based access permissions:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;" id="user-role-selector-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

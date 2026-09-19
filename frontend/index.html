@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GridKnowledge RAG - Enterprise knowledge assistant for electricity-grid operations, manuals, SOPs, and safety procedures.">
+  <title>GridKnowledge — Enterprise Grid Knowledge Assistant</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <a href="/" class="brand" id="brand-link">
+      <div class="brand-icon">⚡</div>
+      <span class="brand-title">GridKnowledge</span>
+      <span class="brand-tag">ENTERPRISE</span>
+    </a>
+
+    <nav class="nav" id="main-nav">
+      <a href="/chat" class="nav-link" id="nav-chat">Chat</a>
+      <a href="/chat?view=history" class="nav-link" id="nav-history">History</a>
+      <a href="/chat?view=sources" class="nav-link" id="nav-sources">Sources</a>
+      <a href="/chat?view=settings" class="nav-link" id="nav-settings">Settings</a>
+      <a href="javascript:void(0)" class="nav-link" id="nav-admin" style="display: none;">Admin</a>
+
+      <div class="user-badge" id="user-badge-container">
+        <span id="user-display-name">Loading...</span>
+        <span class="role-pill" id="user-role-pill">Viewer</span>
+        <button class="btn-ghost" id="btn-switch-user" title="Switch User Role">Switch</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Hero Area -->
+  <main class="hero-container">
+    <h1 class="hero-title">Grid Knowledge Assistant</h1>
+    <p class="hero-subtitle">Find trusted information from approved grid documentation.</p>
+
+    <!-- Large Input -->
+    <form id="home-search-form" class="search-box">
+      <input 
+        type="text" 
+        id="home-search-input" 
+        class="search-input" 
+        placeholder="Ask about grid operations, equipment, maintenance, or safety..." 
+        autocomplete="off"
+        required
+      >
+      <button type="submit" class="search-btn" id="home-search-btn">Search</button>
+    </form>
+
+    <!-- Example Questions -->
+    <div class="examples-section">
+      <div class="examples-label">Example Questions</div>
+      <div class="examples-grid" id="example-chips-container">
+        <div class="example-chip" data-query="What is the transformer maintenance procedure?">
+          What is the transformer maintenance procedure?
+        </div>
+        <div class="example-chip" data-query="What PPE is required for transformer maintenance?">
+          What PPE is required for transformer maintenance?
+        </div>
+        <div class="example-chip" data-query="Show me the circuit breaker inspection procedure.">
+          Show me the circuit breaker inspection procedure.
+        </div>
+        <div class="example-chip" data-query="Where is the transformer oil inspection procedure documented?">
+          Where is the transformer oil inspection procedure documented?
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Switch User Modal -->
+  <div class="modal-overlay" id="user-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Select Active User Role (RBAC)</div>
+        <button class="modal-close" id="btn-close-user-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 16px;">Select an approved grid personnel account to test role-based access permissions:</p>
+        <div style="display: flex; flex-direction: column; gap: 10px;" id="user-role-selector-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Home-specific initializations
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchForm = document.getElementById("home-search-form");
+      const searchInput = document.getElementById("home-search-input");
+      const chips = document.querySelectorAll(".example-chip");
+
+      function startChatWithQuery(q) {
+        if (!q.trim()) return;
+        sessionStorage.setItem("gridknowledge_initial_query", q.trim());
+        window.location.href = "/chat";
+      }
+
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        startChatWithQuery(searchInput.value);
+      });
+
+      chips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          startChatWithQuery(chip.getAttribute("data-query"));
+        });
+      });
+    });
+  </script>
+</body>
+</html>
