@@ -4,6 +4,30 @@ Welcome to the **GridKnowledge RAG** developer documentation. This guide covers 
 
 ---
 
+### 📑 Essential Documentation Guides
+
+| Document | Description |
+| :--- | :--- |
+| 📐 [`system-design.md`](file:///d:/GridKnowledge/system-design.md) | **Enterprise System Design:** Full C4 architecture diagrams, state machines, RBAC clearance matrix, guardrail suite, and failover topologies. |
+| ☁️ [`DEPLOYMENT_AWS_EC2.md`](file:///d:/GridKnowledge/DEPLOYMENT_AWS_EC2.md) | **Simple AWS EC2 Deployment:** Step-by-step 5-step Docker deployment on AWS EC2 (under 10 minutes, no Nginx or domain required). |
+| ☸️ [`DEPLOYMENT_K8S_KIND.md`](file:///d:/GridKnowledge/DEPLOYMENT_K8S_KIND.md) | **Local Kubernetes (KinD) Deployment:** Complete guide for running on a local Kubernetes cluster using KinD with PVCs, ConfigMaps, Secrets, and NodePort. |
+| 🚀 [`deploy.sh`](file:///d:/GridKnowledge/deploy.sh) | **One-Click Deployment Script:** Automated pull, container rebuild, health verification, and image prune script. |
+
+---
+
+### Table of Contents
+1. [System Architecture & Request Lifecycle](#1-system-architecture--request-lifecycle)
+2. [Codebase Organization](#2-codebase-organization)
+3. [Developer Environment Setup](#3-developer-environment-setup)
+4. [Database & Ingestion Workflow](#4-database--ingestion-workflow)
+5. [Running the Application](#5-running-the-application)
+6. [Core Modules Deep Dive](#6-core-modules-deep-dive)
+7. [REST API Reference](#7-rest-api-reference)
+8. [Testing & Quality Assurance](#8-testing--quality-assurance)
+9. [Production & Cloud Deployment](#9-production--cloud-deployment)
+
+---
+
 ## 1. System Architecture & Request Lifecycle
 
 > **Full System Design Document:** For the end-to-end C4 architecture diagrams, state machine flows, RBAC clearance matrix, multi-layer guardrails, and failover topologies, refer to [`system-design.md`](file:///d:/GridKnowledge/system-design.md).
@@ -389,7 +413,7 @@ python -c "from backend.evaluation.evaluation import run_evaluation_benchmark; p
 
 ## 9. Production & Cloud Deployment
 
-> 🚀 **Complete Step-by-Step AWS EC2 Guide:** For an end-to-end beginner-friendly production guide covering EC2 instance provisioning, Elastic IPs, Security Groups, Nginx reverse proxy, Let's Encrypt SSL, automated database backups, and zero-downtime updates, read [`DEPLOYMENT_AWS_EC2.md`](file:///d:/GridKnowledge/DEPLOYMENT_AWS_EC2.md).
+> ☁️ **Simple AWS EC2 Deployment Guide:** For an under-10-minute setup on AWS EC2 using Docker without Nginx or custom domain requirements, read [`DEPLOYMENT_AWS_EC2.md`](file:///d:/GridKnowledge/DEPLOYMENT_AWS_EC2.md).
 >
 > ☸️ **Local Kubernetes (KinD) Guide:** For running GridKnowledge RAG on a local Kubernetes cluster using KinD (Kubernetes IN Docker) with PersistentVolumeClaims, ConfigMaps, Secrets, health probes, and NodePort mapping, read [`DEPLOYMENT_K8S_KIND.md`](file:///d:/GridKnowledge/DEPLOYMENT_K8S_KIND.md).
 
@@ -427,4 +451,26 @@ kubectl apply -f k8s/
 
 # 4. Open in browser: http://localhost:8000
 ```
+
+### 9.4 Deploy on AWS EC2 Quickstart
+```bash
+# 1. Connect to EC2 instance (Ubuntu 24.04, t3.small or t3.medium)
+ssh -i my-key.pem ubuntu@<EC2-PUBLIC-IP>
+
+# 2. Install Docker
+sudo apt update && sudo apt install -y docker.io docker-compose-v2
+sudo usermod -aG docker ubuntu && newgrp docker
+
+# 3. Clone and configure
+git clone https://github.com/bittush8789/gridknowledge-rag.git
+cd gridknowledge-rag
+cp .env.example .env
+nano .env  # Add GROQ_API_KEY, OPENAI_API_KEY, PINECONE_API_KEY
+
+# 4. Launch container
+docker compose up -d --build
+
+# 5. Open in browser: http://<EC2-PUBLIC-IP>:8000
+```
+
 
