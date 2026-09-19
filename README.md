@@ -6,6 +6,8 @@ Welcome to the **GridKnowledge RAG** developer documentation. This guide covers 
 
 ## 1. System Architecture & Request Lifecycle
 
+> **Full System Design Document:** For the end-to-end C4 architecture diagrams, state machine flows, RBAC clearance matrix, multi-layer guardrails, and failover topologies, refer to [`system-design.md`](file:///d:/GridKnowledge/system-design.md).
+
 GridKnowledge RAG implements a deterministic, non-agentic RAG pipeline. It avoids autonomous agent loops in favor of a reliable, high-assurance pipeline tailored for safety-critical utility operations.
 
 ```
@@ -106,6 +108,7 @@ GridKnowledge/
 ├── requirements.txt            # Python dependencies
 ├── Dockerfile                  # Container build specification
 ├── docker-compose.yml          # Container orchestration configuration
+├── system-design.md            # Comprehensive enterprise C4 system design document
 └── README.md                   # Developer documentation
 ```
 

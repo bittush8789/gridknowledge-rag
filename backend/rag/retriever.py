@@ -95,7 +95,15 @@ class SemanticFusionReranker(BaseReranker):
         if not chunks:
             return []
 
-        query_tokens = set(tokenize_text(query))
+        stop_words = {
+            "what", "is", "the", "a", "an", "and", "or", "of", "to", "for", "with",
+            "at", "from", "on", "in", "by", "how", "do", "does", "show", "me"
+        }
+        raw_tokens = tokenize_text(query)
+        content_tokens = [t for t in raw_tokens if t not in stop_words]
+        if not content_tokens:
+            content_tokens = raw_tokens
+        query_tokens = set(content_tokens)
         ranked = []
 
         for item in chunks:
@@ -103,19 +111,23 @@ class SemanticFusionReranker(BaseReranker):
             section = item.get("section", "").lower()
             doc_title = item.get("document", "").lower()
 
-            # Technical term overlap
+            # Technical token overlap sets
             text_tokens = set(tokenize_text(text))
-            overlap = len(query_tokens.intersection(text_tokens))
+            section_tokens = set(tokenize_text(section))
+            title_tokens = set(tokenize_text(doc_title))
 
-            # Bonus for section or title match
-            section_bonus = 1.5 if any(qt in section for qt in query_tokens) else 0.0
-            title_bonus = 1.0 if any(qt in doc_title for qt in query_tokens) else 0.0
+            text_overlap = len(query_tokens.intersection(text_tokens))
+            section_overlap = len(query_tokens.intersection(section_tokens))
+            title_overlap = len(query_tokens.intersection(title_tokens))
 
-            # Base fusion rank score
+            # Title matches are primary signals of subject entity intent
+            title_score = title_overlap * 2.5
+            section_score = section_overlap * 1.5
+            text_score = text_overlap * 0.2
             base_score = item.get("rrf_score", 0.0)
 
             # Combined reranking score
-            rerank_score = base_score * 2.0 + (overlap * 0.1) + section_bonus + title_bonus
+            rerank_score = (base_score * 2.0) + title_score + section_score + text_score
             item_copy = dict(item)
             item_copy["rerank_score"] = float(rerank_score)
             ranked.append(item_copy)

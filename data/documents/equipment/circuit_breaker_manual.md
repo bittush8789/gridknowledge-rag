@@ -5,7 +5,7 @@ equipment: "Circuit Breaker"
 version: "5.0"
 effective_date: "2023-11-01"
 status: "active"
-access_level: "Engineer"
+access_level: "Maintenance"
 notice: "DEMO/FICTIONAL DOCUMENT FOR GRIDKNOWLEDGE RAG TESTING ONLY"
 ---
 
