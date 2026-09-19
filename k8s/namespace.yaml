@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gridknowledge
+  labels:
+    app.kubernetes.io/name: gridknowledge-rag
+    app.kubernetes.io/part-of: gridknowledge

@@ -108,8 +108,10 @@ GridKnowledge/
 ├── requirements.txt            # Python dependencies
 ├── Dockerfile                  # Container build specification
 ├── docker-compose.yml          # Container orchestration configuration
+├── k8s/                        # Kubernetes manifests (kind-config, namespace, deployment, service, pvc, configmap, secrets)
 ├── deploy.sh                   # Production update and zero-downtime deployment script
 ├── DEPLOYMENT_AWS_EC2.md       # Complete step-by-step AWS EC2 production deployment handbook
+├── DEPLOYMENT_K8S_KIND.md      # Local Kubernetes deployment guide using KinD
 ├── system-design.md            # Comprehensive enterprise C4 system design document
 └── README.md                   # Developer documentation
 ```
@@ -388,6 +390,8 @@ python -c "from backend.evaluation.evaluation import run_evaluation_benchmark; p
 ## 9. Production & Cloud Deployment
 
 > 🚀 **Complete Step-by-Step AWS EC2 Guide:** For an end-to-end beginner-friendly production guide covering EC2 instance provisioning, Elastic IPs, Security Groups, Nginx reverse proxy, Let's Encrypt SSL, automated database backups, and zero-downtime updates, read [`DEPLOYMENT_AWS_EC2.md`](file:///d:/GridKnowledge/DEPLOYMENT_AWS_EC2.md).
+>
+> ☸️ **Local Kubernetes (KinD) Guide:** For running GridKnowledge RAG on a local Kubernetes cluster using KinD (Kubernetes IN Docker) with PersistentVolumeClaims, ConfigMaps, Secrets, health probes, and NodePort mapping, read [`DEPLOYMENT_K8S_KIND.md`](file:///d:/GridKnowledge/DEPLOYMENT_K8S_KIND.md).
 
 ### 9.1 Build and Run with Docker Compose
 ```bash
@@ -405,3 +409,22 @@ docker-compose down
 - Base Image: `python:3.11-slim`
 - Application Port: `8000`
 - Volume Mount: `./data` is mounted to persist SQLite database and documents across container rebuilds.
+
+### 9.3 Deploy on Local Kubernetes (KinD) Quickstart
+```bash
+# 1. Create KinD cluster with host port 8000 mapped to NodePort 30080
+kind create cluster --config k8s/kind-config.yaml --name gridknowledge
+
+# 2. Build and load local image
+docker build -t gridknowledge-rag:latest .
+kind load docker-image gridknowledge-rag:latest --name gridknowledge
+
+# 3. Configure secrets and apply manifests
+cp k8s/secret.example.yaml k8s/secret.yaml
+# (Add your API keys to k8s/secret.yaml)
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/
+
+# 4. Open in browser: http://localhost:8000
+```
+

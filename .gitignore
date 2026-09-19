@@ -1,6 +1,7 @@
 # Environment and secrets
 .env
 *.env.local
+k8s/secret.yaml
 
 # Python
 __pycache__/

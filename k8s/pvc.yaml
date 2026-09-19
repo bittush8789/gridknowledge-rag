@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gridknowledge-data-pvc
+  namespace: gridknowledge
+  labels:
+    app.kubernetes.io/name: gridknowledge-rag
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gridknowledge-app
+  namespace: gridknowledge
+  labels:
+    app.kubernetes.io/name: gridknowledge-rag
+    app.kubernetes.io/component: backend
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gridknowledge-rag
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gridknowledge-rag
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+        - name: gridknowledge
+          image: gridknowledge-rag:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: gridknowledge-config
+            - secretRef:
+                name: gridknowledge-secrets
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1Gi"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: gridknowledge-data-pvc

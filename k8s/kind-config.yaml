@@ -1,0 +1,12 @@
+# KinD Cluster Configuration with Extra Port Mappings
+# Maps containerPort 30080 (NodePort) to hostPort 8000 (localhost:8000)
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: gridknowledge
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30080
+    hostPort: 8000
+    listenAddress: "0.0.0.0"
+    protocol: TCP
