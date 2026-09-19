@@ -108,6 +108,8 @@ GridKnowledge/
 ├── requirements.txt            # Python dependencies
 ├── Dockerfile                  # Container build specification
 ├── docker-compose.yml          # Container orchestration configuration
+├── deploy.sh                   # Production update and zero-downtime deployment script
+├── DEPLOYMENT_AWS_EC2.md       # Complete step-by-step AWS EC2 production deployment handbook
 ├── system-design.md            # Comprehensive enterprise C4 system design document
 └── README.md                   # Developer documentation
 ```
@@ -383,7 +385,9 @@ python -c "from backend.evaluation.evaluation import run_evaluation_benchmark; p
 
 ---
 
-## 9. Docker Deployment
+## 9. Production & Cloud Deployment
+
+> 🚀 **Complete Step-by-Step AWS EC2 Guide:** For an end-to-end beginner-friendly production guide covering EC2 instance provisioning, Elastic IPs, Security Groups, Nginx reverse proxy, Let's Encrypt SSL, automated database backups, and zero-downtime updates, read [`DEPLOYMENT_AWS_EC2.md`](file:///d:/GridKnowledge/DEPLOYMENT_AWS_EC2.md).
 
 ### 9.1 Build and Run with Docker Compose
 ```bash
